@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:medicalrecord/authentication/doctor-sign-in.dart';
+import 'package:medicalrecord/authentication/doctor-sign-up.dart';
 import 'package:medicalrecord/doctors/blockcahin_add.dart';
 import 'package:medicalrecord/doctors/record_add.dart';
 
@@ -15,7 +17,7 @@ class MyMain extends StatelessWidget {
       title: 'Med_Recorder',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primaryColor: Colors.blueAccent),
-      home: Blockadder(),
+      home: Dsignup(),
     );
   }
 }

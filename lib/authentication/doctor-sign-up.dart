@@ -1,5 +1,11 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:web3dart/contracts.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../api/Firebaseapi.dart';
 
 class Dsignup extends StatefulWidget {
   const Dsignup({Key? key}) : super(key: key);
@@ -14,8 +20,52 @@ class _DsignupState extends State<Dsignup> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController repassword = TextEditingController();
-  bool x1 = false;
-  bool x2 = false;
+  TextEditingController privatekey = TextEditingController();
+  bool x1 = true;
+  bool x2 = true;
+  XFile? _image;
+  var url =
+      "https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_960_720.png";
+
+  Future getProfile(bool cameraon) async {
+    XFile image;
+    final imgpicker = ImagePicker();
+    if (cameraon) {
+      image = (await imgpicker.pickImage(source: ImageSource.camera))!;
+    } else {
+      image = (await imgpicker.pickImage(source: ImageSource.gallery))!;
+    }
+    setState(() {
+      _image = image;
+    });
+  }
+
+  Future upload(var image) async {
+    File s = File(image.path);
+    final filename = Timestamp.now();
+    final email1 = email.text;
+    final destination = '/profile/$email1/$filename';
+    var task = FirebaseApi.uploadFile(destination, s);
+    if (task == null) {
+      return;
+    } else {
+      final snapshot = await task.whenComplete(() {});
+      final urlDownload = await snapshot.ref.getDownloadURL();
+      setState(() {
+        this.url = urlDownload;
+      });
+      FirebaseFirestore.instance.collection('doctor').doc(email.text).set({
+        'id': id.text,
+        'name': name.text,
+        'email': email.text,
+        'key': privatekey.text,
+        'password': password.text,
+        'repassword': password.text,
+        'profile': urlDownload,
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,10 +80,70 @@ class _DsignupState extends State<Dsignup> {
                   Tile2('Id', id),
                   Tile2('Name', name),
                   Tile2('Email', email),
+                  Tile2('Private key', privatekey),
                   Tile2('Password', password),
                   Tile2('RePassword', repassword),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        height: 100,
+                        width: 100,
+                        child: ClipOval(
+                          child: (_image == null)
+                              ? Image(
+                                  image: NetworkImage(
+                                      "https://cdn.pixabay.com/photo/2017/06/13/12/53/profile-2398782_960_720.png"),
+                                )
+                              : Image.file(
+                                  File(_image!.path),
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      ),
+                      Column(
+                        children: <Widget>[
+                          Text('Choose Profile Picture:'),
+                          Row(
+                            children: <Widget>[
+                              IconButton(
+                                  onPressed: () {
+                                    getProfile(false);
+                                  },
+                                  icon: Icon(Icons.insert_drive_file_outlined)),
+                              IconButton(
+                                  onPressed: () {
+                                    getProfile(true);
+                                  },
+                                  icon: Icon(Icons.camera_alt_outlined)),
+                            ],
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   RaisedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (_image != null) {
+                        upload(_image);
+                      } else {
+                        FirebaseFirestore.instance
+                            .collection('doctor')
+                            .doc(email.text)
+                            .set({
+                          'id': id.text,
+                          'name': name.text,
+                          'email': email.text,
+                          'key': privatekey.text,
+                          'password': password.text,
+                          'repassword': password.text,
+                          'profile': url,
+                        });
+                      }
+                    },
                     child: Text('SignUp'),
                   )
                 ],

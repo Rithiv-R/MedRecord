@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../doctors/record_add.dart';
 
 class Dsignin extends StatefulWidget {
   const Dsignin({Key? key}) : super(key: key);
@@ -22,7 +26,29 @@ class _DsigninState extends State<Dsignin> {
               Tile1('Email:', email),
               Tile1('Password:', password),
               RaisedButton(
-                onPressed: () {},
+                onPressed: () {
+                  FirebaseFirestore.instance
+                      .collection('adoc')
+                      .doc(email.text.trim())
+                      .get()
+                      .then((DocumentSnapshot snapshot) async {
+                    if (snapshot.exists) {
+                      try {
+                        await FirebaseAuth.instance
+                            .signInWithEmailAndPassword(
+                                email: email.text.trim(),
+                                password: password.text.trim())
+                            .then((_) =>
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => Recordadd(
+                                          email: this.email.text.trim(),
+                                        ))));
+                      } on FirebaseAuthException catch (e) {
+                        print('Error');
+                      }
+                    }
+                  });
+                },
                 child: Text('Login'),
               ),
             ],

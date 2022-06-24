@@ -17,7 +17,7 @@ class MyMain extends StatelessWidget {
       title: 'Med_Recorder',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primaryColor: Colors.blueAccent),
-      home: Dsignup(),
+      home: Dsignin(),
     );
   }
 }

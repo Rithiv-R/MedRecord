@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:medicalrecord/doctors/blockcahin_add.dart';
 import 'package:transition/transition.dart';
 
 class Recordadd extends StatefulWidget {
-  const Recordadd({Key? key}) : super(key: key);
+  String email;
+
+  Recordadd({required this.email});
 
   @override
   State<Recordadd> createState() => _RecordaddState();
@@ -111,7 +114,7 @@ class _RecordaddState extends State<Recordadd> {
                         Navigator.push(
                             context,
                             Transition(
-                                child: Recordadd(),
+                                child: Blockadder(),
                                 transitionEffect:
                                     TransitionEffect.LEFT_TO_RIGHT));
                       });
